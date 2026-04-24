@@ -76,6 +76,7 @@ export function participantesReducer(
       return {
         ...state,
         error: action.payload,
+        loading: false,
       };
 
     default:
