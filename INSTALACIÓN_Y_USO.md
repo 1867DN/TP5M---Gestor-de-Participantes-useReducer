@@ -7,7 +7,7 @@
 1. **Abre una terminal en la carpeta `tp5M`**
 2. **Ejecuta:**
 ```bash
-run.bat
+autom\run.bat
 ```
 
 El script hará automáticamente:
@@ -105,10 +105,8 @@ Luego abre http://localhost:5173 en tu navegador.
 ### Buscar Participante
 
 - Usa la barra de búsqueda para filtrar por:
-  - Nombre
-  - Email
-  - Ciudad
-  - Edad
+  - Nombre, Email, Ciudad, País
+  - Modalidad, Tecnologías, Nivel, Edad
 
 La búsqueda es **en tiempo real** sin recargar la página.
 
@@ -125,24 +123,27 @@ La búsqueda es **en tiempo real** sin recargar la página.
 
 ```
 tp5M/
+├── autom/
+│   ├── run.bat                   # Arranca backend, frontend y navegador
+│   ├── seed_participantes.bat    # Agrega 10 participantes de prueba
+│   └── seed_participantes.py     # Script Python del seed
 ├── backend/
 │   ├── main.py               # API FastAPI
 │   ├── models.py             # Modelos de BD
 │   ├── schemas.py            # Validación
-│   ├── database.py           # Conexión MySQL
-│   ├── requirements.txt       # Dependencias
-│   └── .env                  # Variables de entorno
+│   ├── database.py           # Conexión MySQL (lee desde .env)
+│   ├── requirements.txt      # Dependencias
+│   ├── create_db.sql         # Script SQL
+│   └── .env                  # Credenciales de base de datos
 ├── frontend/
 │   ├── src/
 │   │   ├── context/          # ParticipantesContext
-│   │   ├── reducers/         # participantesReducer (NUEVO)
-│   │   ├── components/       # Formulario, Card
+│   │   ├── reducers/         # participantesReducer
+│   │   ├── components/       # Formulario, ParticipanteCard
 │   │   ├── models/           # Interfaces
 │   │   └── Home.tsx
 │   ├── package.json
 │   └── vite.config.ts
-├── run.bat                   # Script automático
-├── create_db.sql
 ├── README.md
 ├── GUÍA_TÉCNICA.md
 └── INSTALACIÓN_Y_USO.md
@@ -177,8 +178,14 @@ SELECT nombre, tecnologias FROM tp5m_db.participantes;
 
 ### Abrir la aplicación
 ```bash
-run.bat
+autom\run.bat
 ```
+
+### Agregar participantes de prueba
+```bash
+autom\seed_participantes.bat
+```
+(Requiere que el backend esté corriendo)
 
 ### Verificar que MySQL está corriendo
 ```bash
@@ -319,124 +326,3 @@ Si tienes problemas:
 ---
 
 **Última actualización:** TP5M - Gestión de Estado con useReducer + Context
-
-## 🔧 Requisitos Previos
-
-- **Python 3.10+**
-- **Node.js 16+**
-- **MySQL 5.7+**
-- **MySQL Workbench** (para visualizar la BD)
-
----
-
-## 📁 Estructura del Proyecto
-
-```
-tp4M/
-├── backend/
-│   ├── main.py           # API FastAPI
-│   ├── models.py         # Modelos SQLAlchemy
-│   ├── schemas.py        # Esquemas Pydantic
-│   ├── database.py       # Configuración MySQL
-│   ├── requirements.txt
-│   ├── .env
-│   └── .gitignore
-├── frontend/
-│   ├── src/
-│   │   ├── context/
-│   │   │   └── ParticipantesContext.tsx
-│   │   ├── components/
-│   │   │   ├── Formulario.tsx
-│   │   │   ├── ParticipanteCard.tsx
-│   │   │   └── Filtros.tsx
-│   │   ├── models/
-│   │   │   └── Participante.ts
-│   │   ├── Home.tsx
-│   │   └── main.tsx
-│   ├── package.json
-│   ├── vite.config.ts
-│   └── index.html
-├── run.bat              # Script automatizado
-├── create_db.sql        # Script SQL para crear BD
-└── README.md
-```
-
----
-
-## 🌐 Puertos
-
-- **Backend:** `http://127.0.0.1:8000`
-- **Frontend:** `http://localhost:5173`
-- **MySQL:** `localhost:3306`
-
----
-
-## 🐛 Solución de Problemas
-
-### "Puerto 8000 en uso"
-```bash
-lsof -i :8000  # en Linux/Mac
-netstat -ano | findstr :8000  # en Windows
-```
-
-### "Base de datos no existe"
-Ejecuta en MySQL Workbench:
-```sql
-CREATE DATABASE tp4m_db;
-```
-
-### "npm: comando no encontrado"
-Instala Node.js desde: https://nodejs.org/
-
-### "python: comando no encontrado"
-Instala Python desde: https://www.python.org/
-
----
-
-## 🔍 Comandos útiles de MySQL
-
-### Ver todos los participantes
-```sql
-SELECT * FROM tp4m_db.participantes;
-```
-
-### Contar participantes
-```sql
-SELECT COUNT(*) FROM tp4m_db.participantes;
-```
-
-### Ver estructura de la tabla
-```sql
-DESCRIBE tp4m_db.participantes;
-```
-
-### Eliminar todos los datos (reiniciar)
-```sql
-DELETE FROM tp4m_db.participantes;
-```
-
-### Resetear ID a 1
-```sql
-ALTER TABLE tp4m_db.participantes AUTO_INCREMENT = 1;
-```
-
----
-
-Para verificar que todo funciona:
-
-1. ✅ Agrega 3 participantes
-2. ✅ Busca por nombre
-3. ✅ Busca por edad
-4. ✅ Elimina uno
-5. ✅ Verifica en MySQL que se eliminó
-6. ✅ Agrega otro nuevo
-7. ✅ Verifica que el ID es secuencial
-
----
-
-## 📝 Notas Importantes
-
-- Los datos se guardan en MySQL automáticamente
-- No es necesario recargar la página para ver cambios
-- El filtro es en tiempo real
-- El CORS está configurado para el localhost

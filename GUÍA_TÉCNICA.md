@@ -96,8 +96,10 @@ backend/
 ├── main.py          # Endpoints API (4 operaciones)
 ├── models.py        # Modelos SQLAlchemy (BD)
 ├── schemas.py       # Esquemas Pydantic (validación)
-├── database.py      # Conexión MySQL (tp5m_db)
-└── requirements.txt # Dependencias
+├── database.py      # Conexión MySQL (lee desde .env)
+├── requirements.txt # Dependencias
+├── create_db.sql    # Script SQL de la tabla
+└── .env             # Credenciales de base de datos
 ```
 
 ### Endpoints (CRUD Completo)
@@ -176,16 +178,26 @@ aceptoTerminos: bool # Boolean
 
 ### Configuración de Base de Datos
 
-Archivo: `database.py`
+Las credenciales se leen desde `backend/.env`. Para cambiarlas, editar ese archivo:
 
-```python
-DATABASE_URL = "mysql+mysqlconnector://root:root@localhost:3306/tp5m_db"
+```
+DB_USER=root
+DB_PASSWORD=root
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=tp5m_db
 ```
 
-- **Usuario:** root
-- **Contraseña:** root
-- **Host:** localhost:3306
-- **Base de datos:** tp5m_db
+`database.py` construye la URL de conexión a partir de esas variables:
+
+```python
+DB_USER = os.getenv("DB_USER", "root")
+DB_PASSWORD = os.getenv("DB_PASSWORD", "root")
+DB_HOST = os.getenv("DB_HOST", "localhost")
+DB_PORT = os.getenv("DB_PORT", "3306")
+DB_NAME = os.getenv("DB_NAME", "tp5m_db")
+DATABASE_URL = f"mysql+mysqlconnector://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+```
 
 ### Tabla Participantes
 
@@ -218,14 +230,13 @@ frontend/src/
 ├── context/
 │   └── ParticipantesContext.tsx    # useReducer + Context
 ├── reducers/
-│   └── participantesReducer.ts     # Lógica centralizada (NUEVO)
+│   └── participantesReducer.ts     # Lógica centralizada
 ├── components/
 │   ├── Formulario.tsx              # Agregar/Editar con botón dinámico
-│   ├── ParticipanteCard.tsx        # Tarjeta con botón Editar
-│   └── Filtros.tsx                 # Búsqueda
+│   └── ParticipanteCard.tsx        # Tarjeta con botones Editar/Eliminar
 ├── models/
-│   └── Participante.ts             # Interfaz con nuevos campos
-├── Home.tsx                        # Página principal + edición
+│   └── Participante.ts             # Interfaz con todos los campos
+├── Home.tsx                        # Página principal + filtro + edición
 └── main.tsx                        # Entry point
 ```
 
@@ -407,6 +418,10 @@ participantesFiltrados = participantes.filter(p =>
   p.nombre.includes(filtro) || 
   p.email.includes(filtro) || 
   p.ciudad.includes(filtro) ||
+  p.pais.includes(filtro) ||
+  p.modalidad.includes(filtro) ||
+  p.tecnologias.includes(filtro) ||
+  p.nivel.includes(filtro) ||
   p.edad.toString().includes(filtro)
 )
     ↓

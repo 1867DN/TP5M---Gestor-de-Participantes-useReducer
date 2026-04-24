@@ -54,7 +54,7 @@ La aplicación permite:
 ### Opción 1: Script Automático (Recomendado)
 
 ```bash
-cd tp5M
+cd tp5M/autom
 run.bat
 ```
 
@@ -128,33 +128,37 @@ type Action =
 
 ```
 tp5M/
+├── autom/
+│   ├── run.bat                     # Arranca backend, frontend y navegador
+│   ├── seed_participantes.bat      # Agrega 10 participantes de prueba
+│   └── seed_participantes.py       # Script Python del seed
+│
 ├── backend/
 │   ├── main.py                 # API FastAPI (4 endpoints)
 │   ├── models.py               # Modelos SQLAlchemy
 │   ├── schemas.py              # Validación Pydantic
-│   ├── database.py             # Configuración MySQL (tp5m_db)
-│   ├── requirements.txt         # Dependencias Python
-│   └── .env                    # Variables de entorno
+│   ├── database.py             # Configuración MySQL (lee desde .env)
+│   ├── requirements.txt        # Dependencias Python
+│   ├── create_db.sql           # Script SQL (tp5m_db)
+│   └── .env                    # Credenciales de base de datos
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── context/
 │   │   │   └── ParticipantesContext.tsx    # Context + useReducer
 │   │   ├── reducers/
-│   │   │   └── participantesReducer.ts     # NUEVO: Lógica centralizada
+│   │   │   └── participantesReducer.ts     # Lógica centralizada
 │   │   ├── components/
 │   │   │   ├── Formulario.tsx              # Agregar/Editar con botón dinámico
-│   │   │   └── ParticipanteCard.tsx        # Tarjeta con botón Editar
+│   │   │   └── ParticipanteCard.tsx        # Tarjeta con botones Editar/Eliminar
 │   │   ├── models/
 │   │   │   └── Participante.ts             # Interface extendida
-│   │   ├── Home.tsx                        # Manejo de edición
+│   │   ├── Home.tsx                        # Manejo de edición y filtro
 │   │   └── main.tsx                        # Entry point
 │   ├── package.json
 │   ├── vite.config.ts
 │   └── tsconfig.json
 │
-├── run.bat                     # Script automático (actualizado a TP5M)
-├── create_db.sql               # Script SQL (tp5m_db)
 ├── GUÍA_TÉCNICA.md             # Documentación técnica
 ├── INSTALACIÓN_Y_USO.md        # Guía paso a paso
 └── README.md                   # Este archivo
@@ -290,7 +294,10 @@ SELECT * FROM tp5m_db.participantes WHERE modalidad = 'Virtual';
 
 ```bash
 # Abrir la aplicación
-run.bat
+autom\run.bat
+
+# Agregar participantes de prueba (con el backend corriendo)
+autom\seed_participantes.bat
 
 # Eliminar base de datos (si necesitas reiniciar)
 # En MySQL Workbench:
@@ -306,7 +313,7 @@ ALTER TABLE tp5m_db.participantes AUTO_INCREMENT = 1;
 
 - **Header azul** con título "Gestor de Participantes - TP5M"
 - **Formulario dinámico** que cambia entre "Agregar" y "Actualizar"
-- **Buscador** en tiempo real (nombre, email, ciudad, edad)
+- **Buscador** en tiempo real (nombre, email, ciudad, país, modalidad, tecnologías, nivel, edad)
 - **Grid 3x3** de tarjetas verdes con información completa
 - **Botones dual**: Editar (azul) + Eliminar (rojo)
 - **Carga automática** de datos al hacer click en Editar
