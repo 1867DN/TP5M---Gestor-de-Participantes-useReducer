@@ -1,4 +1,4 @@
-# Gestor de Participantes - TP4M
+# Gestor de Participantes - TP5M
 
 <div align="center">
 
@@ -8,10 +8,11 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.3.0-3178C6?style=flat-square&logo=typescript)
 ![Vite](https://img.shields.io/badge/Vite-5.0.0-646CFF?style=flat-square&logo=vite)
 ![Python](https://img.shields.io/badge/Python-3.10+-3776AB?style=flat-square&logo=python)
+![useReducer](https://img.shields.io/badge/useReducer-React_Hook-61DAFB?style=flat-square)
 
-**Una aplicación full-stack para gestionar participantes de eventos con backend API REST y frontend moderno.**
+**Una aplicación full-stack para gestionar participantes de eventos con backend API REST, frontend moderno y gestión centralizada de estado con useReducer.**
 
-[Características](#características) • [Instalación](#instalación-rápida) • [API](#api-endpoints) • [Estructura](#estructura-del-proyecto) • [Tecnologías](#tecnologías)
+[Características](#características) • [Instalación](#instalación-rápida) • [API](#api-endpoints) • [Arquitectura](#arquitectura) • [Tecnologías](#tecnologías)
 
 </div>
 
@@ -19,14 +20,16 @@
 
 ## 📋 Descripción
 
-**Gestor de Participantes** es una aplicación web completa desarrollada como Trabajo Práctico para gestionar participantes de eventos. Utiliza una arquitectura moderna con frontend en React + TypeScript y backend en FastAPI con base de datos MySQL.
+**Gestor de Participantes - TP5M** es la evolución del TP4M que implementa **useReducer + Context API** para centralizar la lógica de estado. Desarrollado como Trabajo Práctico para entender patrones avanzados de manejo de estado en React.
 
 La aplicación permite:
-- ✅ Agregar nuevos participantes
-- ✅ Visualizar lista completa de participantes
-- ✅ Buscar y filtrar por nombre, email, ciudad o edad
+- ✅ Agregar nuevos participantes con información completa
+- ✅ Visualizar lista de participantes con múltiples campos
+- ✅ **Editar participantes** (carga automática de datos en formulario)
+- ✅ Buscar y filtrar en tiempo real
 - ✅ Eliminar participantes
-- ✅ Persistencia de datos en MySQL
+- ✅ Persistencia centralizada con useReducer + Context API
+- ✅ Backend con gestión de transacciones MySQL
 
 ---
 
@@ -36,11 +39,13 @@ La aplicación permite:
 |---------|------------|
 | 🔄 **CRUD Completo** | Crear, leer, actualizar y eliminar participantes |
 | 🔍 **Búsqueda en Tiempo Real** | Filtra participantes por múltiples campos |
+| ✏️ **Edición de Participantes** | Carga datos automáticamente al hacer click en Editar |
 | 📱 **UI Responsiva** | Grid 3x3 de tarjetas con diseño limpio |
-| 🌐 **API REST** | Endpoints bien documentados y fáciles de usar |
+| 🏗️ **useReducer + Context** | Gestión centralizada de estado (TP5M) |
+| 🌐 **API REST** | Endpoints bien documentados con CRUD completo |
 | 💾 **Persistencia** | Datos guardados en MySQL automáticamente |
-| ⚡ **Context API** | Estado global sin necesidad de Redux |
 | 🔐 **CORS Habilitado** | Comunicación segura frontend-backend |
+| 📊 **Campos Extendidos** | País, Modalidad, Tecnologías, Nivel, Términos |
 
 ---
 
@@ -49,22 +54,24 @@ La aplicación permite:
 ### Opción 1: Script Automático (Recomendado)
 
 ```bash
-cd tp4M
+cd tp5M
 run.bat
 ```
 
 Esto hace automáticamente:
-- ✅ Crea la base de datos
-- ✅ Instala dependencias
-- ✅ Levanta Backend y Frontend
-- ✅ Abre el navegador en `http://localhost:5173`
+- ✅ Verifica MySQL (usuario: root, contraseña: root)
+- ✅ Crea la base de datos tp5m_db
+- ✅ Instala dependencias Python y Node.js
+- ✅ Levanta Backend FastAPI (puerto 8000)
+- ✅ Levanta Frontend React (puerto 5173)
+- ✅ Abre el navegador automáticamente
 
 ### Opción 2: Manual Paso a Paso
 
 **Crear la BD:**
 ```bash
-# En MySQL Workbench
-CREATE DATABASE tp4m_db;
+# En MySQL Workbench o terminal
+mysql -u root -proot -e "CREATE DATABASE tp5m_db;"
 ```
 
 **Backend:**
@@ -81,40 +88,75 @@ npm install
 npm run dev
 ```
 
+Luego abre http://localhost:5173
+
 ---
 
-## 🏗️ Estructura del Proyecto
+## 🏗️ Arquitectura (TP5M)
+
+### Flujo useReducer + Context
 
 ```
-tp4M/
+Componente
+    ↓
+dispatch(action)
+    ↓
+reducer(state, action)
+    ↓
+nuevo estado
+    ↓
+React renderiza
+```
+
+### Acciones del Reducer
+
+```typescript
+type Action =
+  | { type: "GET_PARTICIPANTES"; payload: Participante[] }
+  | { type: "AGREGAR"; payload: Participante }
+  | { type: "EDITAR"; payload: Participante }
+  | { type: "ELIMINAR"; payload: number }
+  | { type: "RESET"; payload: Participante[] }
+  | { type: "SET"; payload: Participante[] }
+  | { type: "SET_LOADING"; payload: boolean }
+  | { type: "SET_ERROR"; payload: string | null };
+```
+
+---
+
+## 📁 Estructura del Proyecto
+
+```
+tp5M/
 ├── backend/
-│   ├── main.py                 # API FastAPI con 3 endpoints
+│   ├── main.py                 # API FastAPI (4 endpoints)
 │   ├── models.py               # Modelos SQLAlchemy
 │   ├── schemas.py              # Validación Pydantic
-│   ├── database.py             # Configuración MySQL
+│   ├── database.py             # Configuración MySQL (tp5m_db)
 │   ├── requirements.txt         # Dependencias Python
 │   └── .env                    # Variables de entorno
 │
 ├── frontend/
 │   ├── src/
 │   │   ├── context/
-│   │   │   └── ParticipantesContext.tsx    # Context API global
+│   │   │   └── ParticipantesContext.tsx    # Context + useReducer
+│   │   ├── reducers/
+│   │   │   └── participantesReducer.ts     # NUEVO: Lógica centralizada
 │   │   ├── components/
-│   │   │   ├── Formulario.tsx              # Form agregar participante
-│   │   │   ├── ParticipanteCard.tsx        # Tarjeta de participante
-│   │   │   └── Filtros.tsx                 # Búsqueda
+│   │   │   ├── Formulario.tsx              # Agregar/Editar con botón dinámico
+│   │   │   └── ParticipanteCard.tsx        # Tarjeta con botón Editar
 │   │   ├── models/
-│   │   │   └── Participante.ts             # Interfaz TypeScript
-│   │   ├── Home.tsx                        # Página principal
+│   │   │   └── Participante.ts             # Interface extendida
+│   │   ├── Home.tsx                        # Manejo de edición
 │   │   └── main.tsx                        # Entry point
 │   ├── package.json
 │   ├── vite.config.ts
 │   └── tsconfig.json
 │
-├── run.bat                     # Script de ejecución automática
-├── create_db.sql               # Script SQL para BD
-├── INSTALACIÓN_Y_USO.md        # Guía de instalación
+├── run.bat                     # Script automático (actualizado a TP5M)
+├── create_db.sql               # Script SQL (tp5m_db)
 ├── GUÍA_TÉCNICA.md             # Documentación técnica
+├── INSTALACIÓN_Y_USO.md        # Guía paso a paso
 └── README.md                   # Este archivo
 ```
 
@@ -126,19 +168,25 @@ tp4M/
 |--------|----------|------------|
 | `GET` | `/participantes` | Obtiene todos los participantes |
 | `POST` | `/participantes` | Crea un nuevo participante |
+| `PUT` | `/participantes/{id}` | **NUEVO:** Actualiza un participante |
 | `DELETE` | `/participantes/{id}` | Elimina un participante |
 
-### Ejemplos
+### Ejemplo de Datos
 
 **GET /participantes**
 ```json
 [
   {
     "id": 1,
-    "nombre": "Leandro Nuñez",
-    "email": "leandro@example.com",
-    "edad": 24,
-    "ciudad": "Los Corralitos"
+    "nombre": "Juan Perez",
+    "email": "juan@example.com",
+    "edad": 30,
+    "ciudad": "Buenos Aires",
+    "pais": "Argentina",
+    "modalidad": "Presencial",
+    "tecnologias": "React, Node.js",
+    "nivel": "Intermedio",
+    "aceptoTerminos": true
   }
 ]
 ```
@@ -146,10 +194,30 @@ tp4M/
 **POST /participantes**
 ```json
 {
-  "nombre": "Juan",
-  "email": "juan@example.com",
-  "edad": 25,
-  "ciudad": "Buenos Aires"
+  "nombre": "Maria García",
+  "email": "maria@example.com",
+  "edad": 28,
+  "ciudad": "Madrid",
+  "pais": "España",
+  "modalidad": "Virtual",
+  "tecnologias": "Python, Django",
+  "nivel": "Avanzado",
+  "aceptoTerminos": true
+}
+```
+
+**PUT /participantes/{id}** (Actualizar)
+```json
+{
+  "nombre": "Maria García",
+  "email": "maria.nueva@example.com",
+  "edad": 29,
+  "ciudad": "Barcelona",
+  "pais": "España",
+  "modalidad": "Híbrido",
+  "tecnologias": "Python, FastAPI",
+  "nivel": "Avanzado",
+  "aceptoTerminos": true
 }
 ```
 
@@ -158,18 +226,45 @@ tp4M/
 ## 💻 Tecnologías
 
 ### Backend
-- **FastAPI** - Framework web moderno y rápido
-- **SQLAlchemy** - ORM para SQL
-- **Pydantic** - Validación de datos
+- **FastAPI 0.104.1** - Framework web moderno
+- **SQLAlchemy 2.0** - ORM para SQL
+- **Pydantic 2.5** - Validación de datos
 - **MySQL** - Base de datos relacional
 - **Uvicorn** - Servidor ASGI
 
 ### Frontend
 - **React 18.2** - Librería UI
-- **TypeScript** - Tipado estático
-- **Vite** - Build tool
+- **TypeScript 5.3** - Tipado estático
+- **Vite 5.0** - Build tool ultrarrápido
 - **Axios** - Cliente HTTP
-- **Context API** - Gestión de estado
+- **useReducer** - Gestión centralizada de estado
+- **Context API** - Distribución del estado
+
+---
+
+## 🎓 Conceptos Clave TP5M
+
+### useReducer vs useState
+
+**Antes (TP4M):**
+```typescript
+const [participantes, setParticipantes] = useState([]);
+const agregar = (p) => setParticipantes([...participantes, p]);
+```
+
+**Ahora (TP5M):**
+```typescript
+const [state, dispatch] = useReducer(participantesReducer, initialState);
+dispatch({ type: "AGREGAR", payload: participante });
+```
+
+### Ventajas
+
+✅ Lógica centralizada en un reducer  
+✅ Fácil de testear y mantener  
+✅ Escalable para aplicaciones complejas  
+✅ Historial de cambios claro  
+✅ Previene bugs sutiles de estado  
 
 ---
 
@@ -177,13 +272,16 @@ tp4M/
 
 ```sql
 -- Ver todos los participantes
-SELECT * FROM tp4m_db.participantes;
+SELECT * FROM tp5m_db.participantes;
 
 -- Contar participantes
-SELECT COUNT(*) FROM tp4m_db.participantes;
+SELECT COUNT(*) FROM tp5m_db.participantes;
 
 -- Ver estructura de tabla
-DESCRIBE tp4m_db.participantes;
+DESCRIBE tp5m_db.participantes;
+
+-- Buscar por modalidad
+SELECT * FROM tp5m_db.participantes WHERE modalidad = 'Virtual';
 ```
 
 ---
@@ -196,29 +294,29 @@ run.bat
 
 # Eliminar base de datos (si necesitas reiniciar)
 # En MySQL Workbench:
-DROP DATABASE tp4m_db;
+DROP DATABASE tp5m_db;
 
 # Reiniciar IDs
-ALTER TABLE tp4m_db.participantes AUTO_INCREMENT = 1;
+ALTER TABLE tp5m_db.participantes AUTO_INCREMENT = 1;
 ```
 
 ---
 
-## 📱 Pantalla Principal
+## 🎨 Pantalla Principal
 
-- **Header azul** con título y descripción
-- **Formulario** para agregar participantes
-- **Buscador** en tiempo real por nombre, email, ciudad o edad
-- **Grid 3x3** de tarjetas con bordes verdes
-- **Contador** de participantes mostrados
-- **Botones rojo** para eliminar
+- **Header azul** con título "Gestor de Participantes - TP5M"
+- **Formulario dinámico** que cambia entre "Agregar" y "Actualizar"
+- **Buscador** en tiempo real (nombre, email, ciudad, edad)
+- **Grid 3x3** de tarjetas verdes con información completa
+- **Botones dual**: Editar (azul) + Eliminar (rojo)
+- **Carga automática** de datos al hacer click en Editar
 
 ---
 
 ## 📚 Documentación
 
-- [INSTALACIÓN_Y_USO.md](./INSTALACIÓN_Y_USO.md) - Guía paso a paso
-- [GUÍA_TÉCNICA.md](./GUÍA_TÉCNICA.md) - Arquitectura y detalles técnicos
+- [GUÍA_TÉCNICA.md](./GUÍA_TÉCNICA.md) - useReducer, endpoints, arquitectura
+- [INSTALACIÓN_Y_USO.md](./INSTALACIÓN_Y_USO.md) - Paso a paso detallado
 
 ---
 
@@ -235,28 +333,32 @@ ALTER TABLE tp4m_db.participantes AUTO_INCREMENT = 1;
 
 - **Frontend:** http://localhost:5173
 - **Backend:** http://localhost:8000
-- **MySQL:** localhost:3306 (tp4m_db)
+- **MySQL:** localhost:3306 (tp5m_db)
 
 ---
 
 ## 📝 Notas Importantes
 
 - Los datos se guardan automáticamente en MySQL
-- No necesita recargar la página para ver cambios
-- El filtro es en tiempo real
+- El formulario carga datos automáticamente al editar
+- El botón cambia de "Agregar" a "Actualizar" según el contexto
+- Filtro en tiempo real sin recargar página
 - CORS configurado para localhost
 - Los IDs son auto-incrementales
+- Estado centralizado con useReducer para mejor mantenibilidad
 
 ---
 
 ## 👤 Autor
 
-**1867DN** - [GitHub Profile](https://github.com/1867DN)
+**Leandro Nuñez (1867DN)** - TP5M
 
 ---
 
 <div align="center">
 
-**Hecho con ❤️ para el TP4M - Programación 4**
+**Hecho con ❤️ para TP5M - Programación 4**
+
+*Gestión de Estado con useReducer + Context*
 
 </div>

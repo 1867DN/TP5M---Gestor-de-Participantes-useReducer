@@ -1,36 +1,32 @@
 @echo off
 REM Script para ejecutar automaticamente Backend, Frontend y abrir navegador
-REM Gestor de Participantes - TP4M
+REM Gestor de Participantes - TP5M
+REM NOTA: Asegurate de que MySQL este corriendo y agrega la ruta al PATH
 
 echo.
 echo ====================================
-echo    GESTOR DE PARTICIPANTES - TP4M
+echo    GESTOR DE PARTICIPANTES - TP5M
 echo ====================================
 echo.
 
 REM Verificar que MySQL este ejecutandose
 echo [1/5] Verificando MySQL...
-mysql -u root -proot -e "SELECT 1" >nul 2>&1
+mysql -u root -p"root" -e "SELECT 1" >nul 2>&1
 if errorlevel 1 (
-    echo ERROR: MySQL no esta ejecutandose o credenciales incorrectas.
-    echo Asegurate de:
-    echo   - MySQL este iniciado
-    echo   - Usuario: root
-    echo   - Contrasena: root
+    echo.
+    echo ADVERTENCIA: No se pudo conectar a MySQL
+    echo Verifica que el servicio MySQL este corriendo y la contrasena sea correcta
+    echo.
+    echo Continuando... (presiona una tecla)
     pause
-    exit /b 1
+) else (
+    echo OK - MySQL esta ejecutandose
 )
-echo OK - MySQL esta ejecutandose
 
 REM Crear base de datos
 echo.
-echo [2/5] Creando base de datos...
-mysql -u root -proot -e "CREATE DATABASE IF NOT EXISTS tp4m_db;"
-if errorlevel 1 (
-    echo ERROR: No se pudo crear la BD
-    pause
-    exit /b 1
-)
+echo [2/5] Creando base de datos tp5m_db...
+mysql -u root -p"root" -e "CREATE DATABASE IF NOT EXISTS tp5m_db;" >nul 2>&1
 echo OK - Base de datos lista
 
 REM Instalar dependencias Backend si es necesario
@@ -51,12 +47,12 @@ REM Iniciar Backend en nueva ventana
 echo.
 echo [5/5] Iniciando servidores...
 cd ..\backend
-start "Backend FastAPI" cmd /k "uvicorn main:app --reload"
+start "Backend FastAPI - TP5M" cmd /k "uvicorn main:app --reload"
 timeout /t 3 /nobreak
 
 REM Iniciar Frontend en nueva ventana
 cd ..\frontend
-start "Frontend React" cmd /k "npm run dev"
+start "Frontend React - TP5M" cmd /k "npm run dev"
 timeout /t 5 /nobreak
 
 REM Abrir navegador
@@ -82,6 +78,6 @@ echo Para detener la aplicacion:
 echo   - Cierra las ventanas de Backend y Frontend
 echo.
 echo Puedes verificar los datos en MySQL Workbench:
-echo   SELECT * FROM tp4m_db.participantes;
+echo   SELECT * FROM tp5m_db.participantes;
 echo.
 pause

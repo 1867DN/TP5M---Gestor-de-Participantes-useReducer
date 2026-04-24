@@ -3,12 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from database import engine, Base, get_db
 from models import Participante as ParticipanteModel
-from schemas import Participante, ParticipanteCreate
+from schemas import Participante, ParticipanteCreate, ParticipanteUpdate
 
 # Crear las tablas
 Base.metadata.create_all(bind=engine)
 
-app = FastAPI(title="Participantes API", version="1.0")
+app = FastAPI(title="Participantes API - TP5M", version="2.0")
 
 # Configurar CORS para permitir requests desde el frontend
 app.add_middleware(
@@ -32,9 +32,35 @@ def crear_participante(participante: ParticipanteCreate, db: Session = Depends(g
         nombre=participante.nombre,
         email=participante.email,
         edad=participante.edad,
-        ciudad=participante.ciudad
+        ciudad=participante.ciudad,
+        pais=participante.pais,
+        modalidad=participante.modalidad,
+        tecnologias=participante.tecnologias,
+        nivel=participante.nivel,
+        aceptoTerminos=participante.aceptoTerminos
     )
     db.add(db_participante)
+    db.commit()
+    db.refresh(db_participante)
+    return db_participante
+
+# Endpoint: Actualizar un participante por ID
+@app.put("/participantes/{id}", response_model=Participante)
+def actualizar_participante(id: int, participante: ParticipanteUpdate, db: Session = Depends(get_db)):
+    db_participante = db.query(ParticipanteModel).filter(ParticipanteModel.id == id).first()
+    if not db_participante:
+        raise HTTPException(status_code=404, detail="Participante no encontrado")
+    
+    db_participante.nombre = participante.nombre
+    db_participante.email = participante.email
+    db_participante.edad = participante.edad
+    db_participante.ciudad = participante.ciudad
+    db_participante.pais = participante.pais
+    db_participante.modalidad = participante.modalidad
+    db_participante.tecnologias = participante.tecnologias
+    db_participante.nivel = participante.nivel
+    db_participante.aceptoTerminos = participante.aceptoTerminos
+    
     db.commit()
     db.refresh(db_participante)
     return db_participante

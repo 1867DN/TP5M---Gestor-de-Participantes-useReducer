@@ -6,7 +6,7 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = "mysql+mysqlconnector://root:root@localhost:3306/tp4m_db"
+DATABASE_URL = "mysql+mysqlconnector://root:root@localhost:3306/tp5m_db"
 
 engine = create_engine(
     DATABASE_URL,

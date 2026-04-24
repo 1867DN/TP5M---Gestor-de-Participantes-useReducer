@@ -2,27 +2,47 @@ import { useParticipantes } from './context/ParticipantesContext';
 import { Formulario } from './components/Formulario';
 import { ParticipanteCard } from './components/ParticipanteCard';
 import { useState } from 'react';
+import { Participante } from './models/Participante';
 
 function Home() {
   const { participantes, loading } = useParticipantes();
   const [filtro, setFiltro] = useState('');
+  const [participanteEditando, setParticipanteEditando] = useState<Participante | null>(null);
 
+  const filtroLower = filtro.toLowerCase();
   const participantesFiltrados = participantes.filter(p =>
-    p.nombre.toLowerCase().includes(filtro.toLowerCase()) ||
-    p.email.toLowerCase().includes(filtro.toLowerCase()) ||
-    p.ciudad.toLowerCase().includes(filtro.toLowerCase()) ||
-    p.edad.toString().includes(filtro)
+    p.nombre.toLowerCase().includes(filtroLower) ||
+    p.email.toLowerCase().includes(filtroLower) ||
+    p.ciudad.toLowerCase().includes(filtroLower) ||
+    p.pais.toLowerCase().includes(filtroLower) ||
+    p.modalidad.toLowerCase().includes(filtroLower) ||
+    p.tecnologias.toLowerCase().includes(filtroLower) ||
+    p.nivel.toLowerCase().includes(filtroLower) ||
+    p.edad.toString().includes(filtroLower)
   );
+
+  const handleEditar = (participante: Participante) => {
+    setParticipanteEditando(participante);
+    // Scroll al formulario
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleLimpiarEdicion = () => {
+    setParticipanteEditando(null);
+  };
 
   return (
     <div style={styles.container}>
       <header style={styles.header}>
-        <h1>Gestor de Participantes</h1>
+        <h1>Gestor de Participantes - TP5M</h1>
         <p>Administra los participantes de tu evento</p>
       </header>
 
       <div style={styles.content}>
-        <Formulario />
+        <Formulario 
+          participanteEditando={participanteEditando}
+          limpiarEdicion={handleLimpiarEdicion}
+        />
 
         <div style={styles.searchSection}>
           <input
@@ -48,7 +68,8 @@ function Home() {
             {participantesFiltrados.map(participante => (
               <ParticipanteCard
                 key={participante.id}
-                {...participante}
+                participante={participante}
+                onEditar={handleEditar}
               />
             ))}
           </div>

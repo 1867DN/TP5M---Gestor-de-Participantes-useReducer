@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, Boolean
 from database import Base
 
 class Participante(Base):
@@ -9,3 +9,8 @@ class Participante(Base):
     email = Column(String(100), unique=True, index=True)
     edad = Column(Integer)
     ciudad = Column(String(100))
+    pais = Column(String(100))
+    modalidad = Column(String(50))  # Presencial, Virtual, Híbrido
+    tecnologias = Column(String(500))  # JSON o string separado por comas
+    nivel = Column(String(50))  # Principiante, Intermedio, Avanzado
+    aceptoTerminos = Column(Boolean, default=False)
