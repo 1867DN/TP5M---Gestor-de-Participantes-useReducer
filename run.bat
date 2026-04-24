@@ -3,6 +3,15 @@ REM Script para ejecutar automaticamente Backend, Frontend y abrir navegador
 REM Gestor de Participantes - TP5M
 REM NOTA: Asegurate de que MySQL este corriendo y agrega la ruta al PATH
 
+REM Leer credenciales desde backend\.env
+for /f "usebackq tokens=1,2 delims==" %%a in ("backend\.env") do (
+    if "%%a"=="DB_USER" set DB_USER=%%b
+    if "%%a"=="DB_PASSWORD" set DB_PASSWORD=%%b
+    if "%%a"=="DB_HOST" set DB_HOST=%%b
+    if "%%a"=="DB_PORT" set DB_PORT=%%b
+    if "%%a"=="DB_NAME" set DB_NAME=%%b
+)
+
 echo.
 echo ====================================
 echo    GESTOR DE PARTICIPANTES - TP5M
@@ -11,11 +20,12 @@ echo.
 
 REM Verificar que MySQL este ejecutandose
 echo [1/5] Verificando MySQL...
-mysql -u root -p"root" -e "SELECT 1" >nul 2>&1
+mysql -u %DB_USER% -p"%DB_PASSWORD%" -e "SELECT 1" >nul 2>&1
 if errorlevel 1 (
     echo.
     echo ADVERTENCIA: No se pudo conectar a MySQL
     echo Verifica que el servicio MySQL este corriendo y la contrasena sea correcta
+    echo Edita backend\.env para cambiar las credenciales
     echo.
     echo Continuando... (presiona una tecla)
     pause
@@ -25,8 +35,8 @@ if errorlevel 1 (
 
 REM Crear base de datos
 echo.
-echo [2/5] Creando base de datos tp5m_db...
-mysql -u root -p"root" -e "CREATE DATABASE IF NOT EXISTS tp5m_db;" >nul 2>&1
+echo [2/5] Creando base de datos %DB_NAME%...
+mysql -u %DB_USER% -p"%DB_PASSWORD%" -e "CREATE DATABASE IF NOT EXISTS %DB_NAME%;" >nul 2>&1
 echo OK - Base de datos lista
 
 REM Instalar dependencias Backend si es necesario
